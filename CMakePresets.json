@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-clang-ninja-minsize",
+      "displayName": "Windows Clang + Ninja (Minimum Size)",
+      "description": "Build with Clang and Ninja on Windows optimized for smallest executable size",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-minsize",
+      "toolchainFile": "${sourceDir}/cmake/windows-clang-ninja-minsize.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": "OFF",
+        "GGML_STATIC": "ON",
+        "GGML_NATIVE": "OFF",
+        "GGML_AVX": "ON",
+        "GGML_AVX2": "ON",
+        "GGML_FMA": "ON",
+        "GGML_F16C": "ON",
+        "LLAMA_BUILD_TESTS": "OFF",
+        "LLAMA_BUILD_EXAMPLES": "OFF",
+        "LLAMA_BUILD_SERVER": "OFF"
+      }
+    },
+    {
+      "name": "windows-clang-ninja-minsize-portable",
+      "displayName": "Windows Clang + Ninja (Minimum Size, Portable)",
+      "description": "Build with Clang and Ninja on Windows optimized for smallest size and maximum portability",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-minsize-portable",
+      "toolchainFile": "${sourceDir}/cmake/windows-clang-ninja-minsize.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": "OFF",
+        "GGML_STATIC": "ON",
+        "GGML_NATIVE": "OFF",
+        "GGML_AVX": "OFF",
+        "GGML_AVX2": "OFF",
+        "GGML_FMA": "OFF",
+        "GGML_F16C": "OFF",
+        "LLAMA_BUILD_TESTS": "OFF",
+        "LLAMA_BUILD_EXAMPLES": "OFF",
+        "LLAMA_BUILD_SERVER": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-clang-ninja-minsize",
+      "configurePreset": "windows-clang-ninja-minsize"
+    },
+    {
+      "name": "windows-clang-ninja-minsize-portable",
+      "configurePreset": "windows-clang-ninja-minsize-portable"
+    }
+  ]
+}
+
