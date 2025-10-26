@@ -49,7 +49,8 @@ hello_world
 *.pdb
 
 # IDE and Editor files
-.vscode/
+# Note: .vscode/ is tracked for build configuration
+# User-specific VS Code settings should go in .vscode/*.local.json
 .idea/
 *.swp
 *.swo

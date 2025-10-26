@@ -1,42 +1,79 @@
-# Windows LLVM-MinGW + Ninja Toolchain with Minimum Size Optimization
+# Toolchain file for LLVM-MinGW (clang++) on Windows
+# Optimized for smallest executable size with maximum performance
+
+# Set the target system
 set(CMAKE_SYSTEM_NAME Windows)
-set(CMAKE_SYSTEM_PROCESSOR x86_64)
+set(CMAKE_SYSTEM_PROCESSOR AMD64)
 
-# Specify LLVM-MinGW compilers
-# These will be found in PATH if LLVM-MinGW is installed
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_RC_COMPILER llvm-rc)
+# Specify the cross compiler
+# Note: Adjust these paths based on your LLVM-MinGW installation
+# Default assumes LLVM-MinGW is in PATH or C:/llvm-mingw/bin
+find_program(CMAKE_C_COMPILER NAMES clang clang.exe REQUIRED)
+find_program(CMAKE_CXX_COMPILER NAMES clang++ clang++.exe REQUIRED)
+find_program(CMAKE_RC_COMPILER NAMES llvm-rc llvm-rc.exe windres windres.exe REQUIRED)
+find_program(CMAKE_AR NAMES llvm-ar llvm-ar.exe REQUIRED)
+find_program(CMAKE_RANLIB NAMES llvm-ranlib llvm-ranlib.exe REQUIRED)
 
-# Use LLD with MinGW target
-set(CMAKE_LINKER ld.lld)
+# Set the linker
+find_program(CMAKE_LINKER NAMES ld.lld lld lld.exe ld ld.exe REQUIRED)
 
-# Compiler flags for minimum size
-set(CMAKE_C_FLAGS_INIT "-target x86_64-w64-mingw32")
-set(CMAKE_CXX_FLAGS_INIT "-target x86_64-w64-mingw32")
-set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG -flto -ffunction-sections -fdata-sections")
-set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG -flto -ffunction-sections -fdata-sections")
+# Force static linking
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-static -static-libgcc -static-libstdc++")
+set(CMAKE_SHARED_LINKER_FLAGS_INIT "-static -static-libgcc -static-libstdc++")
 
-# Linker flags for minimum size (GNU ld style for MinGW)
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto -Wl,--gc-sections -Wl,--strip-all -Wl,--as-needed -s")
-set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "-flto -Wl,--gc-sections -Wl,--strip-all -Wl,--as-needed -s")
+# Compiler flags for minimum size with maximum optimization
+# -O3: Maximum optimization for performance
+# -march=native: Optimize for the current CPU architecture (use -march=x86-64 for portable builds)
+# -flto: Link-time optimization for better optimization and smaller size
+# -DNDEBUG: Disable debug assertions
+# -ffunction-sections -fdata-sections: Place each function/data in separate sections for better dead code elimination
+# -fno-exceptions: Disable C++ exceptions (reduces size significantly)
+# -fno-rtti: Disable runtime type information (reduces size)
+# -fno-asynchronous-unwind-tables: Don't generate unwind tables (reduces size)
+# -fno-unwind-tables: Don't generate unwind tables (reduces size)
 
-# Static linking to avoid DLL dependencies
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+set(CMAKE_C_FLAGS_RELEASE_INIT "-O3 -march=native -flto -DNDEBUG -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -fno-unwind-tables")
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O3 -march=native -flto -DNDEBUG -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-asynchronous-unwind-tables -fno-unwind-tables")
 
-# Additional optimization options
-add_compile_options(
-    -fomit-frame-pointer      # Remove frame pointer for smaller code
-    -fno-exceptions           # Disable exceptions if not needed
-    -fno-rtti                 # Disable RTTI if not needed
-    -fmerge-all-constants     # Merge identical constants
-    -fno-ident                # Remove compiler identification
-    -fno-asynchronous-unwind-tables  # Remove unwind tables
-)
+# Linker flags for minimum size
+# -s: Strip all symbols
+# -flto: Link-time optimization
+# -Wl,--gc-sections: Enable garbage collection of unused sections
+# -Wl,--strip-all: Strip all symbols
+# -Wl,--strip-debug: Strip debug information
+# -Wl,--build-id=none: Don't generate build ID (saves a few bytes)
+# -static: Static linking
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE_INIT "-s -flto -Wl,--gc-sections -Wl,--strip-all -Wl,--strip-debug -Wl,--build-id=none -static")
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASE_INIT "-s -flto -Wl,--gc-sections -Wl,--strip-all -Wl,--strip-debug -Wl,--build-id=none")
 
-# Link-time optimization
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+# Additional settings for Windows
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-# MinGW-specific: Use printf/scanf from ucrtbase for smaller size
-add_compile_definitions(__USE_MINGW_ANSI_STDIO=0)
+# Use static libraries by default
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+
+# Compiler-specific settings
+if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    # Additional clang-specific optimizations
+    add_compile_options(
+        -fmerge-all-constants      # Merge duplicate constants
+        -fno-stack-protector       # Disable stack protector (reduces size, less secure)
+        -fomit-frame-pointer       # Omit frame pointer (reduces size, harder to debug)
+    )
+endif()
+
+# Set target architecture explicitly
+add_compile_definitions(_WIN32_WINNT=0x0601)  # Windows 7+
+
+message(STATUS "=================================================")
+message(STATUS "LLVM-MinGW Toolchain Configuration (Minimum Size)")
+message(STATUS "=================================================")
+message(STATUS "C Compiler: ${CMAKE_C_COMPILER}")
+message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "Linker: ${CMAKE_LINKER}")
+message(STATUS "AR: ${CMAKE_AR}")
+message(STATUS "Build Type: Release (optimized for size)")
+message(STATUS "=================================================")
 

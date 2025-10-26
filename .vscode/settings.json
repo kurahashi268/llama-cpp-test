@@ -1,0 +1,52 @@
+{
+  // CMake Tools Configuration for Windows LLVM-MinGW Build
+  "cmake.configureOnOpen": false,
+  "cmake.useCMakePresets": "always",
+  
+  // Default preset for Windows builds
+  "cmake.defaultConfigurePreset": "windows-clang-ninja-minsize",
+  
+  // Auto-select build preset based on configure preset
+  "cmake.automaticReconfigure": false,
+  
+  // CMake settings
+  "cmake.configureSettings": {
+    "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+  },
+  
+  // Terminal settings for Windows
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  
+  // File associations
+  "files.associations": {
+    "*.cmake": "cmake",
+    "CMakeLists.txt": "cmake",
+    "*.h": "cpp",
+    "*.cpp": "cpp",
+    "*.bat": "bat"
+  },
+  
+  // Editor settings for C++
+  "editor.formatOnSave": false,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  
+  // C++ IntelliSense
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "C_Cpp.default.compilerPath": "",
+  
+  // File exclusions for cleaner workspace
+  "files.exclude": {
+    "**/.git": true,
+    "**/build-*/**": false,
+    "**/*.o": true,
+    "**/*.obj": true
+  },
+  
+  // Search exclusions
+  "search.exclude": {
+    "**/build-*/**": true,
+    "**/llama.cpp/.git": true
+  }
+}
+

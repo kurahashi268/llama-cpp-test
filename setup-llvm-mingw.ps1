@@ -1,95 +1,160 @@
-# LLVM-MinGW Environment Setup Script
-# Run this before building to ensure LLVM-MinGW is in PATH
+# PowerShell script to download and setup LLVM-MinGW for Windows
+# This script downloads LLVM-MinGW and sets it up for building
 
 param(
-    [string]$LlvmMingwPath = "C:\llvm-mingw"
+    [string]$InstallPath = "C:\llvm-mingw",
+    [string]$Version = "20241217",  # Latest stable version as of script creation
+    [switch]$AddToPath = $true,
+    [switch]$Force = $false
 )
 
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "   LLVM-MinGW Environment Setup" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
+$ErrorActionPreference = "Stop"
+
+Write-Host "============================================================" -ForegroundColor Cyan
+Write-Host "LLVM-MinGW Setup Script" -ForegroundColor Cyan
+Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host ""
 
-$binPath = Join-Path $LlvmMingwPath "bin"
+# Determine architecture
+$arch = if ([Environment]::Is64BitOperatingSystem) { "x86_64" } else { "i686" }
+Write-Host "Detected architecture: $arch" -ForegroundColor Green
 
-# Check if LLVM-MinGW exists
-if (-not (Test-Path $binPath)) {
-    Write-Host "✗ LLVM-MinGW not found at: $binPath" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Please install LLVM-MinGW:" -ForegroundColor Yellow
-    Write-Host "  1. Download from: https://github.com/mstorsjo/llvm-mingw/releases" -ForegroundColor Yellow
-    Write-Host "  2. Extract to: $LlvmMingwPath" -ForegroundColor Yellow
-    Write-Host "  3. Run this script again" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Or specify custom path:" -ForegroundColor Yellow
-    Write-Host "  .\setup-llvm-mingw.ps1 -LlvmMingwPath 'D:\my-llvm-mingw'" -ForegroundColor Yellow
-    exit 1
-}
+# Construct download URL
+$fileName = "llvm-mingw-$Version-ucrt-$arch.zip"
+$downloadUrl = "https://github.com/mstorsjo/llvm-mingw/releases/download/$Version/$fileName"
+$tempZip = Join-Path $env:TEMP $fileName
 
-# Add to PATH for current session
-$env:PATH = "$binPath;$env:PATH"
-
-Write-Host "✓ LLVM-MinGW found at: $LlvmMingwPath" -ForegroundColor Green
+Write-Host "Download URL: $downloadUrl" -ForegroundColor Gray
+Write-Host "Install path: $InstallPath" -ForegroundColor Gray
 Write-Host ""
 
-# Verify tools
-$tools = @(
-    @{Name="clang"; Required=$true},
-    @{Name="clang++"; Required=$true},
-    @{Name="ld.lld"; Required=$true},
-    @{Name="llvm-ar"; Required=$false},
-    @{Name="llvm-strip"; Required=$false},
-    @{Name="cmake"; Required=$true},
-    @{Name="ninja"; Required=$true}
-)
-
-Write-Host "Checking required tools:" -ForegroundColor Cyan
-Write-Host ""
-
-$allFound = $true
-foreach ($tool in $tools) {
-    $found = Get-Command $tool.Name -ErrorAction SilentlyContinue
-    if ($found) {
-        Write-Host "  ✓ $($tool.Name)" -ForegroundColor Green -NoNewline
-        if ($tool.Name -eq "clang") {
-            $version = & clang --version 2>&1 | Select-Object -First 1
-            Write-Host " - $version" -ForegroundColor Gray
-        } else {
-            Write-Host ""
-        }
+# Check if already installed
+if (Test-Path $InstallPath) {
+    if ($Force) {
+        Write-Host "Removing existing installation..." -ForegroundColor Yellow
+        Remove-Item -Path $InstallPath -Recurse -Force
     } else {
-        if ($tool.Required) {
-            Write-Host "  ✗ $($tool.Name) - REQUIRED" -ForegroundColor Red
-            $allFound = $false
+        Write-Host "LLVM-MinGW appears to be already installed at: $InstallPath" -ForegroundColor Yellow
+        Write-Host "Use -Force to reinstall" -ForegroundColor Yellow
+        
+        # Check if in PATH
+        $envPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        $binPath = Join-Path $InstallPath "bin"
+        if ($envPath -notlike "*$binPath*") {
+            Write-Host ""
+            Write-Host "Not in PATH. Adding to PATH..." -ForegroundColor Yellow
+            [Environment]::SetEnvironmentVariable(
+                "Path",
+                "$envPath;$binPath",
+                "User"
+            )
+            Write-Host "Added to PATH. Please restart your terminal." -ForegroundColor Green
         } else {
-            Write-Host "  ⚠ $($tool.Name) - optional" -ForegroundColor Yellow
+            Write-Host "Already in PATH." -ForegroundColor Green
         }
+        exit 0
     }
 }
 
-Write-Host ""
-
-if (-not $allFound) {
-    Write-Host "✗ Some required tools are missing!" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Missing CMake or Ninja?" -ForegroundColor Yellow
-    Write-Host "  Install via: winget install Kitware.CMake" -ForegroundColor Yellow
-    Write-Host "  Install via: winget install Ninja-build.Ninja" -ForegroundColor Yellow
+# Download LLVM-MinGW
+Write-Host "Downloading LLVM-MinGW..." -ForegroundColor Cyan
+try {
+    # Show progress
+    $ProgressPreference = 'Continue'
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZip -UseBasicParsing
+    Write-Host "Download complete!" -ForegroundColor Green
+} catch {
+    Write-Host "ERROR: Failed to download LLVM-MinGW" -ForegroundColor Red
+    Write-Host "URL: $downloadUrl" -ForegroundColor Red
+    Write-Host "Error: $_" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "✓ Environment ready for building!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Cyan
+# Extract
 Write-Host ""
-Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "  1. Run: .\build-windows-minsize.bat" -ForegroundColor White
-Write-Host "  2. Or:  cmake --preset windows-clang-ninja-minsize" -ForegroundColor White
-Write-Host "         cmake --build build-minsize --config Release" -ForegroundColor White
-Write-Host ""
+Write-Host "Extracting LLVM-MinGW..." -ForegroundColor Cyan
+try {
+    # Create installation directory
+    $installDir = Split-Path $InstallPath -Parent
+    if (-not (Test-Path $installDir)) {
+        New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+    }
+    
+    # Extract
+    Expand-Archive -Path $tempZip -DestinationPath $installDir -Force
+    
+    # Rename extracted folder to target name
+    $extractedFolder = Join-Path $installDir "llvm-mingw-$Version-ucrt-$arch"
+    if ($extractedFolder -ne $InstallPath) {
+        if (Test-Path $InstallPath) {
+            Remove-Item -Path $InstallPath -Recurse -Force
+        }
+        Rename-Item -Path $extractedFolder -NewName (Split-Path $InstallPath -Leaf)
+    }
+    
+    Write-Host "Extraction complete!" -ForegroundColor Green
+} catch {
+    Write-Host "ERROR: Failed to extract LLVM-MinGW" -ForegroundColor Red
+    Write-Host "Error: $_" -ForegroundColor Red
+    exit 1
+}
 
-# Save environment setup for easy reuse
-Write-Host "Tip: Add LLVM-MinGW to your system PATH permanently:" -ForegroundColor Yellow
-Write-Host "  [Environment]::SetEnvironmentVariable('Path', `$env:Path + ';$binPath', 'User')" -ForegroundColor Gray
+# Cleanup
 Write-Host ""
+Write-Host "Cleaning up..." -ForegroundColor Cyan
+Remove-Item $tempZip -Force
+Write-Host "Cleanup complete!" -ForegroundColor Green
+
+# Add to PATH
+if ($AddToPath) {
+    Write-Host ""
+    Write-Host "Adding LLVM-MinGW to PATH..." -ForegroundColor Cyan
+    
+    $binPath = Join-Path $InstallPath "bin"
+    $envPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    
+    if ($envPath -notlike "*$binPath*") {
+        [Environment]::SetEnvironmentVariable(
+            "Path",
+            "$envPath;$binPath",
+            "User"
+        )
+        Write-Host "Added to PATH (User environment variable)" -ForegroundColor Green
+        Write-Host "Please restart your terminal for changes to take effect" -ForegroundColor Yellow
+    } else {
+        Write-Host "Already in PATH" -ForegroundColor Green
+    }
+}
+
+# Verify installation
+Write-Host ""
+Write-Host "Verifying installation..." -ForegroundColor Cyan
+$clangPath = Join-Path $InstallPath "bin\clang++.exe"
+if (Test-Path $clangPath) {
+    Write-Host "Installation successful!" -ForegroundColor Green
+    Write-Host ""
+    
+    # Display version
+    Write-Host "Compiler version:" -ForegroundColor Cyan
+    & $clangPath --version | Select-Object -First 1
+    
+    Write-Host ""
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "Setup Complete!" -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "LLVM-MinGW is installed at: $InstallPath" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Next steps:" -ForegroundColor Yellow
+    Write-Host "  1. Restart your terminal (or open a new one)" -ForegroundColor White
+    Write-Host "  2. Run: build-windows-minsize.bat" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Or manually add to PATH for current session:" -ForegroundColor Yellow
+    Write-Host "  `$env:Path += `";$binPath`"" -ForegroundColor Gray
+    Write-Host ""
+} else {
+    Write-Host "ERROR: Installation verification failed" -ForegroundColor Red
+    Write-Host "clang++.exe not found at: $clangPath" -ForegroundColor Red
+    exit 1
+}
 

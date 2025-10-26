@@ -1,0 +1,54 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Chatbot (Test Mode)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-minsize/chatbot.exe",
+      "args": [
+        "--test"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "Build Windows (Native)"
+    },
+    {
+      "name": "Debug Chatbot (One-shot)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build-minsize/chatbot.exe",
+      "args": [
+        "--test",
+        "--user",
+        "Hello, how are you?"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "Build Windows (Native)"
+    }
+  ]
+}
+

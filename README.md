@@ -30,12 +30,24 @@ A C++ chatbot implementation using llama.cpp with dual-mode operation: interacti
 
 ### Build
 
+#### Linux/Unix:
 ```bash
 mkdir -p build
 cd build
 cmake ..
 make -j$(nproc)
 ```
+
+#### Windows (LLVM-MinGW - Smallest Executable):
+```batch
+REM Native build (fastest, optimized for your CPU)
+build-windows-minsize.bat
+
+REM Portable build (works on any x86-64 CPU)
+build-windows-minsize.bat portable
+```
+
+**See [WINDOWS-BUILD-QUICKSTART.md](WINDOWS-BUILD-QUICKSTART.md) for detailed Windows build instructions.**
 
 ### Test Mode (Interactive Chatbot)
 
@@ -77,28 +89,46 @@ await llm.GetResponseToTextBox(myTextBox, "What is C++?");
 
 ## 📋 Prerequisites
 
+### Linux:
 - CMake 3.10 or higher
 - C++17 compatible compiler (GCC, Clang)
 - Git (for submodules)
 - Linux OS (for POSIX shared memory)
+
+### Windows:
+- CMake 3.21 or higher
+- LLVM-MinGW (for smallest executable) or MinGW-w64
+- Ninja build system
+- Git (for submodules)
+
+**Windows Note:** The current `main.cpp` uses Linux-specific features (POSIX shared memory). For Windows builds, use `--test` mode which works cross-platform.
 
 ---
 
 ## 📚 Documentation
 
 ### Getting Started:
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute getting started guide
-- **[FEATURES.md](FEATURES.md)** - Complete feature list and usage examples
+- **[WINDOWS-BUILD-QUICKSTART.md](WINDOWS-BUILD-QUICKSTART.md)** ⭐ - Windows build guide (smallest executable)
+- **[BUILD_CONFIGURATION_SUMMARY.md](BUILD_CONFIGURATION_SUMMARY.md)** - Complete build configuration overview
+- **[QUICKSTART.md](docs/Core/QUICKSTART.md)** - 5-minute getting started guide
+- **[FEATURES.md](docs/Core/FEATURES.md)** - Complete feature list and usage examples
+
+### Windows Build System:
+- **[WINDOWS-BUILD-QUICKSTART.md](WINDOWS-BUILD-QUICKSTART.md)** - Quick start for Windows builds
+- **[BUILD_CONFIGURATION_SUMMARY.md](BUILD_CONFIGURATION_SUMMARY.md)** - Build system overview
+- **[cmake/README.md](cmake/README.md)** - Technical details and customization
+- **setup-llvm-mingw.ps1** - Automatic LLVM-MinGW installer
+- **build-windows-minsize.bat** - Automated build script
 
 ### C# Integration:
-- **[LocalLLMService_GUIDE.md](LocalLLMService_GUIDE.md)** - Complete C# API guide
-- **[LocalLLMService_QUICKREF.md](LocalLLMService_QUICKREF.md)** - Quick reference card
-- **[LocalLLMService_SUMMARY.md](LocalLLMService_SUMMARY.md)** - Implementation overview
+- **[LocalLLMService_GUIDE.md](docs/C#%20Integration/LocalLLMService_GUIDE.md)** - Complete C# API guide
+- **[LocalLLMService_QUICKREF.md](docs/C#%20Integration/LocalLLMService_QUICKREF.md)** - Quick reference card
+- **[LocalLLMService_SUMMARY.md](docs/C#%20Integration/LocalLLMService_SUMMARY.md)** - Implementation overview
 
 ### Advanced:
-- **[STREAMING_IPC_GUIDE.md](STREAMING_IPC_GUIDE.md)** - IPC streaming protocol details
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture and design
-- **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - Detailed C# integration guide
+- **[STREAMING_IPC_GUIDE.md](docs/Advanced/STREAMING_IPC_GUIDE.md)** - IPC streaming protocol details
+- **[ARCHITECTURE.md](docs/Core/ARCHITECTURE.md)** - Technical architecture and design
+- **[INTEGRATION_GUIDE.md](docs/Advanced/INTEGRATION_GUIDE.md)** - Detailed C# integration guide
 
 ### Code Examples:
 - **[LocalLLMService.cs](LocalLLMService.cs)** - Main C# service class (copy to your project)

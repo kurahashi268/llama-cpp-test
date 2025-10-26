@@ -1,0 +1,155 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Windows (Native)",
+      "type": "shell",
+      "command": "build-windows-minsize.bat",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build Windows (Portable)",
+      "type": "shell",
+      "command": "build-windows-minsize.bat portable",
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "CMake: Configure (Native)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--preset",
+        "windows-clang-ninja-minsize"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "CMake: Build (Native)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "windows-clang-ninja-minsize",
+        "-j"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "CMake: Configure (Portable)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--preset",
+        "windows-clang-ninja-minsize-portable"
+      ],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "CMake: Build (Portable)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "--preset",
+        "windows-clang-ninja-minsize-portable",
+        "-j"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean Build Directory (Native)",
+      "type": "shell",
+      "command": "rmdir /s /q build-minsize",
+      "windows": {
+        "command": "rmdir /s /q build-minsize"
+      },
+      "linux": {
+        "command": "rm -rf build-minsize"
+      },
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean Build Directory (Portable)",
+      "type": "shell",
+      "command": "rmdir /s /q build-minsize-portable",
+      "windows": {
+        "command": "rmdir /s /q build-minsize-portable"
+      },
+      "linux": {
+        "command": "rm -rf build-minsize-portable"
+      },
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run Chatbot (Test Mode)",
+      "type": "shell",
+      "command": "build-minsize\\chatbot.exe --test",
+      "windows": {
+        "command": "build-minsize\\chatbot.exe --test"
+      },
+      "linux": {
+        "command": "./build/chatbot --test"
+      },
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    }
+  ]
+}
+
