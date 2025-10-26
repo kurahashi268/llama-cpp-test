@@ -1,8 +1,8 @@
 @echo off
-REM Build script for Windows with Clang + Ninja for minimum size executable
+REM Build script for Windows with LLVM-MinGW + Ninja for minimum size executable
 
 echo ================================================
-echo Building with Clang + Ninja for Minimum Size
+echo Building with LLVM-MinGW + Ninja for Minimum Size
 echo ================================================
 echo.
 
@@ -10,7 +10,8 @@ REM Check if required tools are available
 where clang >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: clang not found in PATH
-    echo Please install LLVM/Clang and add it to PATH
+    echo Please install LLVM-MinGW and add it to PATH
+    echo Download from: https://github.com/mstorsjo/llvm-mingw/releases
     exit /b 1
 )
 

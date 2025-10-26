@@ -8,8 +8,8 @@
   "configurePresets": [
     {
       "name": "windows-clang-ninja-minsize",
-      "displayName": "Windows Clang + Ninja (Minimum Size)",
-      "description": "Build with Clang and Ninja on Windows optimized for smallest executable size",
+      "displayName": "Windows LLVM-MinGW + Ninja (Minimum Size)",
+      "description": "Build with LLVM-MinGW and Ninja on Windows optimized for smallest executable size",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-minsize",
       "toolchainFile": "${sourceDir}/cmake/windows-clang-ninja-minsize.cmake",
@@ -29,8 +29,8 @@
     },
     {
       "name": "windows-clang-ninja-minsize-portable",
-      "displayName": "Windows Clang + Ninja (Minimum Size, Portable)",
-      "description": "Build with Clang and Ninja on Windows optimized for smallest size and maximum portability",
+      "displayName": "Windows LLVM-MinGW + Ninja (Minimum Size, Portable)",
+      "description": "Build with LLVM-MinGW and Ninja on Windows optimized for smallest size and maximum portability",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-minsize-portable",
       "toolchainFile": "${sourceDir}/cmake/windows-clang-ninja-minsize.cmake",

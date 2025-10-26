@@ -1,5 +1,7 @@
 # Build directories
 build/
+build-minsize/
+build-minsize-portable/
 cmake-build-*/
 out/
 
