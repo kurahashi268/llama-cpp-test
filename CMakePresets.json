@@ -47,6 +47,27 @@
         "LLAMA_BUILD_EXAMPLES": "OFF",
         "LLAMA_BUILD_SERVER": "OFF"
       }
+    },
+    {
+      "name": "windows-clang-make-minsize",
+      "displayName": "Windows LLVM-MinGW + Make (Minimum Size) - No File Locking Issues",
+      "description": "Alternative build using MinGW Makefiles instead of Ninja to avoid file locking issues",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/build-minsize-make",
+      "toolchainFile": "${sourceDir}/cmake/windows-clang-ninja-minsize.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": "OFF",
+        "GGML_STATIC": "ON",
+        "GGML_NATIVE": "OFF",
+        "GGML_AVX": "ON",
+        "GGML_AVX2": "ON",
+        "GGML_FMA": "ON",
+        "GGML_F16C": "ON",
+        "LLAMA_BUILD_TESTS": "OFF",
+        "LLAMA_BUILD_EXAMPLES": "OFF",
+        "LLAMA_BUILD_SERVER": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -57,6 +78,10 @@
     {
       "name": "windows-clang-ninja-minsize-portable",
       "configurePreset": "windows-clang-ninja-minsize-portable"
+    },
+    {
+      "name": "windows-clang-make-minsize",
+      "configurePreset": "windows-clang-make-minsize"
     }
   ]
 }

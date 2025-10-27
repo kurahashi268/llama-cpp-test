@@ -27,13 +27,12 @@ set(CMAKE_SHARED_LINKER_FLAGS_INIT "-static -static-libgcc -static-libstdc++")
 # -flto: Link-time optimization for better optimization and smaller size
 # -DNDEBUG: Disable debug assertions
 # -ffunction-sections -fdata-sections: Place each function/data in separate sections for better dead code elimination
-# -fno-exceptions: Disable C++ exceptions (reduces size significantly)
-# -fno-rtti: Disable runtime type information (reduces size)
 # -fno-asynchronous-unwind-tables: Don't generate unwind tables (reduces size)
 # -fno-unwind-tables: Don't generate unwind tables (reduces size)
+# NOTE: -fno-exceptions and -fno-rtti are NOT used because llama.cpp requires them
 
 set(CMAKE_C_FLAGS_RELEASE_INIT "-O3 -march=native -flto -DNDEBUG -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -fno-unwind-tables")
-set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O3 -march=native -flto -DNDEBUG -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-asynchronous-unwind-tables -fno-unwind-tables")
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-O3 -march=native -flto -DNDEBUG -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -fno-unwind-tables")
 
 # Linker flags for minimum size
 # -s: Strip all symbols
@@ -64,8 +63,8 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     )
 endif()
 
-# Set target architecture explicitly
-add_compile_definitions(_WIN32_WINNT=0x0601)  # Windows 7+
+# Note: _WIN32_WINNT is defined by llama.cpp itself, so we don't set it here
+# to avoid redefinition warnings
 
 message(STATUS "=================================================")
 message(STATUS "LLVM-MinGW Toolchain Configuration (Minimum Size)")
