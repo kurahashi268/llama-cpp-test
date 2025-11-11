@@ -37,20 +37,26 @@ if(DEFINED ENV{GGML_BACKEND} AND NOT GGML_CUDA AND NOT GGML_VULKAN AND NOT GGML_
 endif()
 
 # Auto-detect if no backend explicitly set
+# Auto-detect if no backend explicitly set
 if(NOT GGML_CUDA AND NOT GGML_VULKAN AND NOT GGML_HIPBLAS AND NOT GGML_SYCL)
-    # Try to detect CUDA first
-    find_package(CUDAToolkit QUIET)
-    if(CUDAToolkit_FOUND)
-        set(GGML_CUDA ON)
-        message(STATUS "GPU Backend: CUDA (auto-detected)")
+    # Only auto-detect CUDA if we are using MSVC (since nvcc requires cl.exe)
+    if(MSVC)
+        find_package(CUDAToolkit QUIET)
+        if(CUDAToolkit_FOUND)
+            set(GGML_CUDA ON)
+            message(STATUS "GPU Backend: CUDA (auto-detected, MSVC environment)")
+        endif()
     else()
-        # Fallback to Vulkan if available
+        message(STATUS "Non-MSVC compiler detected — skipping CUDA auto-detect")
+    endif()
+
+    # Fallback to Vulkan if available
+    if(NOT GGML_CUDA)
         find_package(Vulkan QUIET)
         if(Vulkan_FOUND)
             set(GGML_VULKAN ON)
             message(STATUS "GPU Backend: Vulkan (auto-detected)")
         else()
-            # Check for ROCm
             if(EXISTS "/opt/rocm")
                 set(GGML_HIPBLAS ON)
                 message(STATUS "GPU Backend: ROCm/HIPBLAS (auto-detected)")
@@ -121,4 +127,5 @@ target_include_directories(chatbot PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/llama.cpp/common
     ${CMAKE_CURRENT_SOURCE_DIR}/llama.cpp/include
 )
+
 
