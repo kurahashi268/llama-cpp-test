@@ -55,7 +55,7 @@ namespace Config {
     constexpr int DEFAULT_BATCH_SIZE = 2048;
     constexpr int DEFAULT_MAX_TOKENS = 0;
     constexpr int DEFAULT_GPU_LAYERS = 0;  // Reference value; actual behavior uses auto-detection (see LLMEngine::initialize)
-    constexpr int DEFAULT_CHUNK_TOKENS = 8; // stream chunks every N tokens
+    constexpr int DEFAULT_CHUNK_TOKENS = 32; // stream chunks every N tokens
     
     constexpr float SAMPLER_MIN_P = 0.05f;
     constexpr float SAMPLER_TEMPERATURE = 0.7f;
@@ -744,8 +744,15 @@ std::string process_inference_streaming(
         response += piece;
         tokens_since_flush++;
 
-        // Only publish after chunk boundary to reduce IPC overhead
-        if (tokens_since_flush >= chunk_tokens) {
+        bool flush_requested = tokens_since_flush >= chunk_tokens;
+
+        // Flush immediately when newline tokens arrive to avoid UI lag
+        // if (!flush_requested && piece.find('\n') != std::string::npos) {
+        //     flush_requested = true;
+        // }
+
+        // Only publish after chunk boundary or newline-triggered flush to reduce IPC overhead
+        if (flush_requested) {
             size_t response_len = response.length();
             size_t max_copy = sizeof(g_ipc.shared_mem->response) - 1;
             if (response_len > max_copy) response_len = max_copy;
